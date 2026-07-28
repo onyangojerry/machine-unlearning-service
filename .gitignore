@@ -7,3 +7,7 @@ artifacts/*
 data/processed/*
 !artifacts/.gitkeep
 !data/processed/.gitkeep
+notes/interview_notes.txt
+mlruns/
+artifacts/*.joblib
+artifacts/*.json
