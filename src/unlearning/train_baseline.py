@@ -76,7 +76,7 @@ def main() -> None:
         seed=SEED,
     )
 
-    mlflow.set_tracking_uri("sqlite:///mlflow.db") # updated from "file:./mlruns"
+    mlflow.set_tracking_uri("sqlite:///mlruns.db") # updated from "file:./mlruns" another update from "sqlite:///mlruns.db"; http://127.0.0.1:5000
     mlflow.set_experiment("adult-income-unlearning")
 
     with mlflow.start_run(run_name="original-logistic-regression"):
