@@ -57,3 +57,43 @@ def write_forget_manifest(
         json.dumps(manifest, indent=2),
         encoding="utf-8",
     )
+
+def read_forget_manifest(
+    input_path: str | Path,
+) -> list[str]:
+    input_path = Path(input_path)
+
+    if not input_path.exists():
+        raise FileNotFoundError(
+            f"Forget manifest not found: {input_path}"
+        )
+
+    manifest = json.loads(
+        input_path.read_text(encoding="utf-8")
+    )
+
+    record_ids = manifest.get("record_ids")
+
+    if not isinstance(record_ids, list) or not record_ids:
+        raise ValueError(
+            "Manifest must contain a non-empty record_ids list"
+        )
+
+    if not all(isinstance(record_id, str) for record_id in record_ids):
+        raise ValueError(
+            "Every record ID in the manifest must be a string"
+        )
+
+    if len(record_ids) != len(set(record_ids)):
+        raise ValueError(
+            "Manifest contains duplicate record IDs"
+        )
+
+    expected_count = manifest.get("record_count")
+
+    if expected_count is not None and expected_count != len(record_ids):
+        raise ValueError(
+            "record_count does not match the number of record IDs"
+        )
+
+    return record_ids
