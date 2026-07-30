@@ -11,3 +11,8 @@ notes/interview_notes.txt
 mlruns/
 artifacts/*.joblib
 artifacts/*.json
+
+artifacts/shards/
+artifacts/sisa_ensemble.joblib
+artifacts/sisa_training_results.json
+artifacts/shard_manifest.csv

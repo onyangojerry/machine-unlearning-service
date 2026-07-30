@@ -26,6 +26,7 @@ def encode_target(target) -> np.ndarray:
     return encoded.to_numpy(dtype=int)
 
 
+
 def evaluate_binary_classifier(
     model,
     features,
@@ -35,7 +36,7 @@ def evaluate_binary_classifier(
     predictions = model.predict(features)
     probabilities = model.predict_proba(features)[:, 1]
 
-    return {
+    metrics = {
         "accuracy": float(accuracy_score(labels, predictions)),
         "precision": float(
             precision_score(labels, predictions, zero_division=0)
@@ -43,7 +44,18 @@ def evaluate_binary_classifier(
         "recall": float(
             recall_score(labels, predictions, zero_division=0)
         ),
-        "f1": float(f1_score(labels, predictions, zero_division=0)),
-        "roc_auc": float(roc_auc_score(labels, probabilities)),
-        "log_loss": float(log_loss(labels, probabilities)),
+        "f1": float(
+            f1_score(labels, predictions, zero_division=0)
+        ),
+        "log_loss": float(
+            log_loss(labels, probabilities, labels=[0, 1])
+        ),
     }
+
+    metrics["roc_auc"] = (
+        float(roc_auc_score(labels, probabilities))
+        if len(np.unique(labels)) == 2
+        else float("nan")
+    )
+
+    return metrics
