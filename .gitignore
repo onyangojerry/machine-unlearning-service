@@ -16,3 +16,8 @@ artifacts/shards/
 artifacts/sisa_ensemble.joblib
 artifacts/sisa_training_results.json
 artifacts/shard_manifest.csv
+
+artifacts/selective_plans.json
+artifacts/pre_unlearning_hashes.json
+
+artifacts/selective_single/
