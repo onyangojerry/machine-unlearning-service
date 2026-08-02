@@ -226,3 +226,61 @@ def predicted_member_rate(
     )
 
     return float(np.mean(predictions))
+
+def bootstrap_member_rate_interval(
+    scores: np.ndarray,
+    threshold: float,
+    iterations: int = 2000,
+    confidence: float = 0.95,
+    seed: int = 42,
+) -> tuple[float, float] | None:
+    scores = np.asarray(scores, dtype=float)
+
+    if scores.size == 0:
+        raise ValueError("scores cannot be empty")
+
+    if iterations < 100:
+        raise ValueError(
+            "iterations must be at least 100"
+        )
+
+    if not 0.0 < confidence < 1.0:
+        raise ValueError(
+            "confidence must be between 0 and 1"
+        )
+
+    # A one-record sample cannot provide a meaningful interval.
+    if scores.size < 2:
+        return None
+
+    predictions = predict_membership(
+        scores,
+        threshold,
+    )
+
+    generator = np.random.default_rng(seed)
+    bootstrap_rates = np.empty(
+        iterations,
+        dtype=float,
+    )
+
+    for iteration in range(iterations):
+        sample = generator.choice(
+            predictions,
+            size=len(predictions),
+            replace=True,
+        )
+        bootstrap_rates[iteration] = np.mean(sample)
+
+    alpha = 1.0 - confidence
+
+    lower = np.quantile(
+        bootstrap_rates,
+        alpha / 2.0,
+    )
+    upper = np.quantile(
+        bootstrap_rates,
+        1.0 - alpha / 2.0,
+    )
+
+    return float(lower), float(upper)

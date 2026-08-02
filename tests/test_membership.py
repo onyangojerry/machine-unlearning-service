@@ -194,3 +194,57 @@ def test_invalid_probability_shape_is_rejected(
             features,
             target,
         )
+from unlearning.membership import (
+    bootstrap_member_rate_interval,
+)
+
+
+def test_bootstrap_interval_contains_observed_rate():
+    scores = np.array(
+        [-0.1, -0.2, -0.3, -1.0, -1.2]
+    )
+
+    interval = bootstrap_member_rate_interval(
+        scores,
+        threshold=-0.5,
+        iterations=1000,
+        seed=42,
+    )
+
+    assert interval is not None
+
+    lower, upper = interval
+    observed = 3 / 5
+
+    assert lower <= observed <= upper
+    assert 0.0 <= lower <= upper <= 1.0
+
+
+def test_single_record_has_no_bootstrap_interval():
+    interval = bootstrap_member_rate_interval(
+        np.array([-0.2]),
+        threshold=-0.5,
+    )
+
+    assert interval is None
+
+
+def test_bootstrap_is_reproducible():
+    scores = np.array(
+        [-0.1, -0.2, -0.3, -1.0, -1.2]
+    )
+
+    first = bootstrap_member_rate_interval(
+        scores,
+        threshold=-0.5,
+        iterations=1000,
+        seed=42,
+    )
+    second = bootstrap_member_rate_interval(
+        scores,
+        threshold=-0.5,
+        iterations=1000,
+        seed=42,
+    )
+
+    assert first == second
