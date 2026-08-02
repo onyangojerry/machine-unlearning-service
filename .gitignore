@@ -19,3 +19,5 @@ artifacts/shard_manifest.csv
 
 artifacts/selective_plans.json
 artifacts/pre_unlearning_hashes.json
+
+artifacts/selective_single/

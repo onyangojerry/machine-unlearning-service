@@ -73,3 +73,39 @@ TODO: Explain why initial training cost is not the main SISA benefit.
 
 TODO: State that deletion-time speedup still requires direct
 measurement.
+
+
+## Selective single-record unlearning
+
+The deletion request affected one of five shard models. We retrained
+only that shard after removing the requested record and copied all
+unaffected artifacts byte-for-byte.
+
+For correctness, we independently retrained all five shards on the
+same retained dataset. This full sharded retraining serves as the
+architecture-matched reference.
+
+### Selective-unlearning results
+
+| Measurement | Selective | Full sharded reference |
+|---|---:|---:|
+| Retrained shards | TODO | 5 |
+| Retraining time | 0.08650579999084584 | 0.40916789998300374 |
+| Test accuracy | TODO | 0.8529020370559934 |
+| Test F1 | 0.6579385860509402 | 0.6579385860509402 |
+| Test disagreement | 0.0 | — |
+| Mean probability gap | 0.0 | — |
+
+Observed speedup: **TODO×**
+
+Unaffected artifact hashes unchanged: **TODO**
+
+### Interpretation
+
+TODO: State whether selective and full-reference predictions matched.
+
+TODO: Explain the measured speedup without assuming it must equal the
+theoretical five-times value.
+
+TODO: Explain how byte-identical unaffected artifacts support the
+isolation claim.
