@@ -109,3 +109,43 @@ theoretical five-times value.
 
 TODO: Explain how byte-identical unaffected artifacts support the
 isolation claim.
+
+
+## Membership-inference evaluation
+
+We evaluated a black-box attacker that knows a record's correct label
+and observes model probabilities. The attacker uses true-label
+log-confidence and calibrates a model-specific threshold using equal
+numbers of known members and nonmembers.
+
+### Distributed forget-set results
+
+| Measurement | Original | Exact reference |
+|---|---:|---:|
+| Attack balanced accuracy |  0.506 | 0.505 |
+| Attack ROC-AUC | 0.47038199999999997 | 0.47042800000000007 |
+| Forget-set predicted-member rate | 0.9974424552429667 | 0.9974424552429667 |
+| 95% bootstrap interval | 0.9923273657289002 | 0.9923273657289002 |
+
+### Single-record sharded result
+
+| Model | Predicted as member? |
+|---|---:|
+| Original sharded ensemble | member |
+| Selectively unlearned ensemble | member |
+
+![Membership-inference results](figures/membership_inference_rates.png)
+
+### Interpretation
+
+TODO: State whether the exact-reference member rate was lower than the
+original rate. - No—the exact-reference member rate was not lower than the original rate; it was the same (0.9974424552429667 in both cases, with the same 95% bootstrap interval)
+
+TODO: State whether the attack itself had meaningful discrimination. - No—the attacker showed no meaningful discrimination. Its balanced accuracy (~0.505–0.506) is essentially chance, and ROC-AUC (~0.470) is also near-random.
+
+TODO: Describe the single-record result as descriptive rather than
+statistically conclusive. - The single-record outcome (1 record classified as “member”) is descriptive only; with n = 1 there is no confidence interval / no statistical power, so it is not statistically conclusive evidence about membership or forgetting.
+
+These results measure resistance to one confidence-based attack. They
+do not establish a formal privacy guarantee or prove that every trace
+of a record has been removed.
