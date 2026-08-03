@@ -7,6 +7,10 @@ from pathlib import Path
 import joblib
 import mlflow
 
+import pytest
+
+pytestmark = pytest.mark.integration
+
 from unlearning.comparison import compare_model_behavior
 from unlearning.data import (
     add_stable_record_ids,

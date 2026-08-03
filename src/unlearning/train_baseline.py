@@ -7,6 +7,10 @@ from time import perf_counter
 import joblib
 import mlflow
 
+import pytest
+
+pytestmark = pytest.mark.integration
+
 from unlearning.data import (
     add_stable_record_ids,
     create_splits,

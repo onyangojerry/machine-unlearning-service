@@ -1,0 +1,12 @@
+Metadata-Version: 2.4
+Name: auditable-machine-unlearning
+Version: 0.1.0
+Summary: Auditable exact and SISA-style machine unlearning experiments
+Requires-Python: >=3.11
+Requires-Dist: joblib
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: pytest
+Requires-Dist: scikit-learn
+Requires-Dist: matplotlib
+Requires-Dist: mlflow

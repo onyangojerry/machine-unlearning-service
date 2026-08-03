@@ -9,6 +9,10 @@ import joblib
 import mlflow
 import pandas as pd
 
+import pytest
+
+pytestmark = pytest.mark.integration
+
 from unlearning.comparison import compare_model_behavior
 from unlearning.data import (
     add_stable_record_ids,

@@ -8,6 +8,10 @@ import matplotlib.pyplot as plt
 import mlflow
 import numpy as np
 
+import pytest
+
+pytestmark = pytest.mark.integration
+
 from unlearning.data import (
     add_stable_record_ids,
     create_splits,

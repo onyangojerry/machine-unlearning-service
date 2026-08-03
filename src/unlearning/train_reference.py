@@ -7,6 +7,10 @@ from time import perf_counter
 
 import joblib
 import mlflow
+import pytest
+
+
+pytestmark = pytest.mark.integration
 
 from unlearning.comparison import (
     calculate_metric_delta,
