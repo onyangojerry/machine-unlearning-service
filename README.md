@@ -1,173 +1,223 @@
-# Auditable Machine-Unlearning Service
+# Auditable Machine Unlearning Service
 
-A reproducible tabular machine-unlearning experiment comparing exact
-retraining with SISA-style selective shard retraining on the Adult Income
-dataset.
+A reproducible **machine unlearning** implementation for tabular machine learning that compares **exact retraining** against **SISA-style selective shard retraining** on the Adult Income dataset.
 
-## Why this project exists
+The project emphasizes reproducibility, auditability, and empirical evaluation of deletion requests while measuring utility, computational cost, behavioral similarity, and privacy.
 
-Deleting a row from a database does not remove its influence from an
-already-trained model. This project evaluates whether retraining can remove
-that record's training participation while preserving utility and reducing
-deletion cost.
+---
 
-## System architecture
+# Why This Project Exists
 
-Dataset and stable record IDs
-        |
-        v
-Deterministic train/test split
-        |
-        +--> Original single model
-        |
-        +--> Exact retain-only reference
-        |
-        +--> Five isolated shard models
-                    |
-Deletion manifest -> affected-shard routing
-                    |
-                    v
-             Selective retraining
-                    |
-                    v
-       Utility, behavior, cost and privacy evaluation
+Deleting a record from storage does **not** remove its influence from a trained machine learning model.
 
-## Methods implemented
+This repository investigates whether retraining can eliminate the contribution of deleted records while preserving predictive performance and reducing computational cost.
+
+Rather than treating unlearning as a theoretical concept, this project produces reproducible evidence through deterministic experiments and auditable artifacts.
+
+---
+
+# System Architecture
+
+```text
+Dataset + Stable Record IDs
+            │
+            ▼
+Deterministic Train/Test Split
+            │
+    ┌───────┴────────┐
+    │                │
+    ▼                ▼
+Original Model   Exact Retain-Only Reference
+                     │
+                     ▼
+         Five Independent Shards
+                     │
+                     ▼
+        Deletion Manifest Routing
+                     │
+                     ▼
+      Selective Shard Retraining
+                     │
+                     ▼
+ Utility • Behavior • Cost • Privacy Evaluation
+```
+
+---
+
+# Features
 
 - Exact retain-only retraining
 - Deterministic SHA-256 shard assignment
-- Independent preprocessing and classification per shard
+- Independent preprocessing for every shard
+- Independent classifier training per shard
 - Mean-probability ensemble aggregation
 - Selective retraining of deletion-affected shards
-- Architecture-matched full-retraining reference
-- Confidence-based membership-inference evaluation
-- SHA-256 integrity verification for unaffected artifacts
+- Architecture-matched retraining reference
+- Confidence-based membership inference evaluation
+- SHA-256 integrity verification of unaffected model artifacts
+- Fully reproducible experiment configuration
 
-This is a SISA-style implementation. Slice checkpointing is not yet
-implemented.
+> **Note**
+>
+> This repository implements a **SISA-style** approach. Slice checkpointing from the original SISA algorithm is **not** currently implemented.
 
-## Key results
+---
+
+# Results
 
 ## Utility
 
-| Metric | Original | Exact reference | Sharded ensemble |
-|---|---:|---:|---:|
-| accuracy | 0.852390 | 0.852288 | 0.853004 |
-| f1 | 0.656339 | 0.656183 | 0.658258 |
-| roc_auc | 0.904230 | 0.904225 | 0.904652 |
-| log_loss | 0.321083 | 0.321123 | 0.320237 |
+| Metric | Original | Exact Reference | Sharded Ensemble |
+|---------|---------:|---------------:|----------------:|
+| Accuracy | 0.852390 | 0.852288 | 0.853004 |
+| F1 | 0.656339 | 0.656183 | 0.658258 |
+| ROC-AUC | 0.904230 | 0.904225 | 0.904652 |
+| Log Loss | 0.321083 | 0.321123 | 0.320237 |
 
-## Selective unlearning
+---
+
+## Selective Unlearning
 
 | Measurement | Result |
-|---|---:|
-| Affected shards | 1 |
-| Selective retraining seconds | 0.077546 |
-| Full sharded retraining seconds | 0.319094 |
-| Observed speedup | 4.114894Ã— |
-| Test prediction disagreement | 0.000000 |
-| Test mean probability gap | 0.000000 |
-| Unaffected hashes unchanged | Yes |
+|-------------|-------:|
+| Affected Shards | 1 |
+| Selective Retraining Time (s) | 0.077546 |
+| Full Sharded Retraining Time (s) | 0.319094 |
+| Observed Speedup | **4.114894×** |
+| Test Prediction Disagreement | 0.000000 |
+| Mean Probability Gap | 0.000000 |
+| Unaffected Artifact Hashes | ✓ Verified |
 
-## Membership-inference evaluation
+---
 
-| Measurement | Original | Exact reference |
-|---|---:|---:|
+## Membership Inference Evaluation
+
+| Measurement | Original | Exact Reference |
+|-------------|---------:|---------------:|
 | Attack ROC-AUC | 0.470382 | 0.470428 |
-| Forget-set predicted-member rate | 0.997442 | 0.997442 |
+| Forget-Set Predicted Member Rate | 0.997442 | 0.997442 |
 
+---
 
+### Probability Shift on Forgotten Records
+
+![Probability shift on forgotten records](reports/figures/forget_probability_shift.png)
+
+### Membership Inference Comparison
+
+![Membership-inference comparison](reports/figures/membership_inference_rates.png)
+
+---
 
 # Quick Start
 
+## Create Environment
+
+```bash
 python -m venv .venv
+
+# Windows PowerShell
 .venv\Scripts\Activate.ps1
+
 python -m pip install --upgrade pip
 python -m pip install -e .
 python -m pip install -r requirements-dev.txt
+```
 
-## Run the complete experiment
+---
 
-python scripts\run_pipeline.py
-python scripts\audit_project.py
+## Run the Complete Experiment
+
+```bash
+python scripts/run_pipeline.py
+python scripts/audit_project.py
+```
+
+---
 
 ## Run Tests
 
+```bash
 pytest -m "not integration" -v
 pytest -v
 ruff check src tests scripts
+```
 
-## Inspect MLFlow
+---
 
+## Inspect MLflow
+
+```bash
 mlflow ui --backend-store-uri ./mlruns
+```
 
+Open:
 
+```
+http://127.0.0.1:5000
+```
 
-Open http://127.0.0.1:5000.
+---
 
-## Reproducibility
+# Reproducibility
 
-The experiment uses a versioned configuration, stable record identifiers,
-seeded splits, deterministic shard assignment and seeded bootstrap
-resampling. Runtime fields are excluded from equality comparisons because
-they depend on hardware and system load.
+The experiment is fully deterministic through:
 
-## Limitations
-Slice checkpoints are not implemented.
-The classifier is a linear tabular baseline.
-The privacy evaluation covers one black-box confidence attack.
-One-record privacy results are descriptive.
-Behavioral similarity and attack resistance are empirical evidence, not
-a formal deletion certificate.
-## References
-Bourtoule et al., Machine Unlearning
-Shokri et al., Membership Inference Attacks Against Machine Learning Models
-Yeom et al., Privacy Risk in Machine Learning
+- versioned configuration
+- stable record identifiers
+- seeded train/test splitting
+- deterministic SHA-256 shard assignment
+- seeded bootstrap resampling
 
-Add both figures below the results section:
+Runtime measurements are intentionally excluded from equality comparisons because execution time depends on machine hardware and operating-system scheduling.
 
-```markdown
-![Probability shift on forgotten records](reports/figures/forget_probability_shift.png)
+---
 
-![Membership-inference comparison](reports/figures/membership_inference_rates.png)
-6. Complete the technical article — 20 minutes
+# Methodology
 
-In reports/article.md:
+The evaluation compares two architectures.
 
-Replace every TODO using JSON artifacts or generated_results.md.
-Retain enough decimal precision to reproduce differences.
-Explicitly distinguish the single-model and sharded architectures.
-Report runtime as machine-dependent.
-Interpret privacy only after reporting attack ROC-AUC.
-Keep single-record privacy evidence descriptive.
-State that exact retraining defines the counterfactual reference.
-Use “SISA-style” consistently.
+## Exact Retraining
 
-## Search for incomplete language:
+The deleted records are removed from the training set and the entire model is retrained.
 
-rg -n "TODO|TBD|FIXME|full SISA|proved privacy|certified deletion" `
-  README.md `
-  reports `
-  notes
+This architecture serves as the **counterfactual reference** representing a model that never observed the deleted data.
 
-Expected output: no unresolved placeholders and no unsupported claims.
+## SISA-Style Retraining
 
-Recommended article conclusion:
+Training data are partitioned into deterministic shards.
 
+Only the shard containing deleted records is retrained while unaffected shard models remain unchanged.
 
+Model integrity is verified using SHA-256 hashes.
 
-## Conclusion
+---
 
-Exact retraining established the behavior of a model that never trained on
-the deletion records. The SISA-style system reproduced its
-architecture-matched reference by retraining only affected shards, while
-unaffected model artifacts remained byte-identical.
+# Limitations
 
-The measured computational benefit depended on how many shards the request
-touched. This confirms that deletion locality, rather than deletion count
-alone, determines the benefit of sharded unlearning.
+- Slice checkpoints from the original SISA algorithm are not implemented.
+- The classifier is a linear baseline designed for tabular data.
+- Privacy evaluation uses a single black-box confidence attack.
+- Single-record privacy measurements are descriptive rather than statistically definitive.
+- Behavioral similarity and attack resistance provide empirical evidence rather than a formal deletion certificate.
+- Runtime measurements are machine-dependent.
 
-The membership-inference experiment supplied an additional privacy signal,
-but its conclusions are bounded by the attack's discrimination and forget-set
-size. The experiment therefore supports an auditable engineering claim, not
-a formal guarantee of information removal.
+---
+
+# References
+
+1. Bourtoule et al. *Machine Unlearning.*
+2. Shokri et al. *Membership Inference Attacks Against Machine Learning Models.*
+3. Yeom et al. *Privacy Risk in Machine Learning.*
+
+---
+
+# Conclusion
+
+Exact retraining establishes the behavior of a model that never trained on the deleted records.
+
+The **SISA-style** implementation reproduces its architecture-matched reference by retraining only the affected shards while leaving unaffected model artifacts byte-identical.
+
+The computational advantage depends primarily on **deletion locality**—that is, how many shards are touched by a deletion request—rather than on deletion count alone.
+
+The membership inference experiment provides an additional empirical privacy signal. However, its conclusions remain bounded by the discrimination ability of the chosen attack and the size of the evaluated forget set. Consequently, the reported results support an **auditable engineering claim** rather than a formal guarantee of information removal.
