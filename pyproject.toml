@@ -16,7 +16,7 @@ dependencies = { file = ["requirements.txt"] }
 where = ["src"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+pythonpath = ["src", "."]
 addopts = "-ra --strict-markers"
 testpaths = ["tests"]
 markers = [

@@ -6,10 +6,7 @@ from pathlib import Path
 
 import joblib
 import mlflow
-
 import pytest
-
-pytestmark = pytest.mark.integration
 
 from unlearning.comparison import compare_model_behavior
 from unlearning.data import (
@@ -24,10 +21,15 @@ from unlearning.sisa import (
     create_shard_manifest,
 )
 from unlearning.sisa_ensemble import train_sharded_ensemble
+from unlearning.settings import get_experiment_config
 
 
-SEED = 42
-NUMBER_OF_SHARDS = 5
+pytestmark = pytest.mark.integration
+
+CONFIG = get_experiment_config()
+
+SEED = CONFIG.seed
+NUMBER_OF_SHARDS = CONFIG.number_of_shards
 
 ARTIFACT_DIRECTORY = Path("artifacts")
 SHARD_DIRECTORY = ARTIFACT_DIRECTORY / "shards"
@@ -58,12 +60,17 @@ def main() -> None:
 
     features, target = load_adult_dataset()
     features = add_stable_record_ids(features)
-    splits = create_splits(features, target, seed=SEED)
+    splits = create_splits(
+        features,
+        target,
+        seed=CONFIG.seed,
+        test_size=CONFIG.test_fraction,
+    )
 
     config = SISAConfig(
-        number_of_shards=NUMBER_OF_SHARDS,
-        number_of_slices=1,
-        assignment_seed=SEED,
+        number_of_shards=CONFIG.number_of_shards,
+        number_of_slices=CONFIG.number_of_slices,
+        assignment_seed=CONFIG.seed,
     )
 
     shard_manifest = create_shard_manifest(

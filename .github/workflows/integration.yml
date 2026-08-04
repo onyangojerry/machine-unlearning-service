@@ -1,0 +1,52 @@
+name: Full experiment
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  complete-experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    env:
+      MPLBACKEND: Agg
+      UNLEARNING_CONFIG: configs/week1.json
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+          python -m pip install -r requirements-dev.txt
+
+      - name: Run complete unlearning workflow
+        run: python scripts/run_pipeline.py
+
+      - name: Upload result evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: week-1-unlearning-evidence
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            artifacts/*.json
+            artifacts/selective_single/*.json
+            artifacts/shard_manifest.csv
+            reports/figures/*.png
+            reports/article.md

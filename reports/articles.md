@@ -149,3 +149,44 @@ statistically conclusive. - The single-record outcome (1 record classified as â€
 These results measure resistance to one confidence-based attack. They
 do not establish a formal privacy guarantee or prove that every trace
 of a record has been removed.
+
+## Reproducibility and operational validation
+
+The complete experiment is controlled by a versioned JSON configuration
+covering the dataset version, random seed, split fraction, deletion
+fraction, shard count and privacy-evaluation parameters.
+
+A cross-platform runner executes the stages in dependency order:
+
+1. Baseline training and deletion-manifest generation
+2. Exact retain-only retraining
+3. Isolated sharded-ensemble training
+4. Selective-retraining planning
+5. Selective shard unlearning
+6. Membership-inference evaluation
+
+Every stage has an artifact contract. The workflow fails if an expected
+model, manifest, result field or figure is absent or empty.
+
+Pull requests run network-independent unit tests on Python 3.11 and 3.12.
+The complete dataset and training workflow is manually triggered because it
+depends on external data and produces comparatively expensive artifacts.
+
+### Reproducibility scope
+
+Seeded model metrics, record assignments, forget manifests, prediction
+comparisons and bootstrap intervals should be reproducible. Runtime
+measurements are expected to vary with hardware, operating-system load and
+dependency implementation.
+
+### Remaining limitations
+
+- The current design is SISA-style because slice checkpointing is not yet
+  implemented.
+- The privacy experiment evaluates one confidence-based membership attack.
+- Single-record privacy results are descriptive.
+- Exact retraining provides a behavioral reference, not a formal deletion
+  certificate.
+
+
+experiment command = python scripts/run_pipeline.py

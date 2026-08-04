@@ -9,9 +9,6 @@ import joblib
 import mlflow
 import pytest
 
-
-pytestmark = pytest.mark.integration
-
 from unlearning.comparison import (
     calculate_metric_delta,
     compare_model_behavior,
@@ -28,10 +25,15 @@ from unlearning.metrics import (
 )
 from unlearning.model import build_model_pipeline
 from unlearning.partition import partition_training_data
+from unlearning.settings import get_experiment_config
 from unlearning.visualization import plot_probability_shift
 
 
-SEED = 42
+pytestmark = pytest.mark.integration
+
+CONFIG = get_experiment_config()
+SEED = CONFIG.seed
+# SEED = 42
 
 ARTIFACT_DIRECTORY = Path("artifacts")
 ORIGINAL_MODEL_PATH = ARTIFACT_DIRECTORY / "original_model.joblib"
@@ -177,7 +179,6 @@ def main() -> None:
         FIGURE_PATH,
     )
 
-    mlflow.set_tracking_uri("file:./mlruns")
     mlflow.set_experiment("adult-income-unlearning")
 
     with mlflow.start_run(
