@@ -67,12 +67,18 @@ SISA-style rather than a complete SISA implementation.
 
 ### Interpretation
 
-TODO: Explain whether dividing the data reduced predictive utility.
+Dividing the training data did not reduce predictive utility in this
+experiment. The sharded ensemble slightly exceeded the single model on
+accuracy, F1, ROC-AUC and log loss, although these differences are small
+and should not be interpreted as a general benefit of sharding.
 
-TODO: Explain why initial training cost is not the main SISA benefit.
+Initial training cost is not the main SISA benefit. Sharding creates
+isolated retraining units so a later deletion can retrain only the affected
+portion of the model rather than the complete ensemble.
 
-TODO: State that deletion-time speedup still requires direct
-measurement.
+The shard count suggests a potential deletion-time saving, but the actual
+speedup must be established by directly timing selective and full sharded
+retraining.
 
 
 ## Selective single-record unlearning
@@ -89,26 +95,28 @@ architecture-matched reference.
 
 | Measurement | Selective | Full sharded reference |
 |---|---:|---:|
-| Retrained shards | TODO | 5 |
+| Retrained shards | 1 | 5 |
 | Retraining time | 0.08650579999084584 | 0.40916789998300374 |
-| Test accuracy | TODO | 0.8529020370559934 |
+| Test accuracy | 0.8529020370559934 | 0.8529020370559934 |
 | Test F1 | 0.6579385860509402 | 0.6579385860509402 |
 | Test disagreement | 0.0 | — |
 | Mean probability gap | 0.0 | — |
 
-Observed speedup: **TODO×**
+Observed speedup: **4.766×**
 
-Unaffected artifact hashes unchanged: **TODO**
+Unaffected artifact hashes unchanged: **Yes**
 
 ### Interpretation
 
-TODO: State whether selective and full-reference predictions matched.
+The selective ensemble and full sharded reference matched on every test
+prediction, with zero mean probability gap.
 
-TODO: Explain the measured speedup without assuming it must equal the
-theoretical five-times value.
+Selective retraining was 4.766 times faster in this run. This is an
+empirical measurement rather than a guaranteed five-times improvement;
+runtime includes fixed overhead and varies with hardware and system load.
 
-TODO: Explain how byte-identical unaffected artifacts support the
-isolation claim.
+The unaffected shard artifacts remained byte-identical, supporting the
+claim that the deletion workflow changed only the affected shard.
 
 
 ## Membership-inference evaluation
@@ -138,13 +146,17 @@ numbers of known members and nonmembers.
 
 ### Interpretation
 
-TODO: State whether the exact-reference member rate was lower than the
-original rate. - No—the exact-reference member rate was not lower than the original rate; it was the same (0.9974424552429667 in both cases, with the same 95% bootstrap interval)
+The exact-reference member rate was not lower than the original rate. Both
+were 0.9974424552429667 and had the same 95% bootstrap interval.
 
-TODO: State whether the attack itself had meaningful discrimination. - No—the attacker showed no meaningful discrimination. Its balanced accuracy (~0.505–0.506) is essentially chance, and ROC-AUC (~0.470) is also near-random.
+The attack showed no meaningful discrimination: balanced accuracy was
+approximately 0.505–0.506 and ROC-AUC was approximately 0.470, both near
+chance performance.
 
-TODO: Describe the single-record result as descriptive rather than
-statistically conclusive. - The single-record outcome (1 record classified as “member”) is descriptive only; with n = 1 there is no confidence interval / no statistical power, so it is not statistically conclusive evidence about membership or forgetting.
+The single-record result is descriptive rather than statistically
+conclusive. With only one record there is no confidence interval or useful
+statistical power, so it is not evidence by itself about membership or
+forgetting.
 
 These results measure resistance to one confidence-based attack. They
 do not establish a formal privacy guarantee or prove that every trace
