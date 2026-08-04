@@ -1,0 +1,11 @@
+{
+  "dataset_name": "adult",
+  "dataset_version": 2,
+  "seed": 42,
+  "test_fraction": 0.2,
+  "forget_fraction": 0.01,
+  "number_of_shards": 5,
+  "number_of_slices": 1,
+  "calibration_size": 1000,
+  "bootstrap_iterations": 2000
+}

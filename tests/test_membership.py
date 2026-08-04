@@ -10,6 +10,10 @@ from unlearning.membership import (
     true_label_confidence,
 )
 
+from unlearning.membership import (
+    bootstrap_member_rate_interval,
+)
+
 
 class FixedProbabilityModel:
     def __init__(self, probabilities):
@@ -194,9 +198,7 @@ def test_invalid_probability_shape_is_rejected(
             features,
             target,
         )
-from unlearning.membership import (
-    bootstrap_member_rate_interval,
-)
+
 
 
 def test_bootstrap_interval_contains_observed_rate():

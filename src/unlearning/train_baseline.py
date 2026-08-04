@@ -6,6 +6,7 @@ from time import perf_counter
 
 import joblib
 import mlflow
+import pytest
 
 from unlearning.data import (
     add_stable_record_ids,
@@ -21,7 +22,12 @@ from unlearning.metrics import (
     evaluate_binary_classifier,
 )
 from unlearning.model import build_model_pipeline
+from unlearning.settings import get_experiment_config
 
+
+pytestmark = pytest.mark.integration
+
+CONFIG = get_experiment_config()
 
 SEED = 42
 FORGET_FRACTION = 0.01
@@ -76,7 +82,6 @@ def main() -> None:
         seed=SEED,
     )
 
-    mlflow.set_tracking_uri("sqlite:///mlruns.db") # updated from "file:./mlruns" another update from "sqlite:///mlruns.db"; http://127.0.0.1:5000
     mlflow.set_experiment("adult-income-unlearning")
 
     with mlflow.start_run(run_name="original-logistic-regression"):

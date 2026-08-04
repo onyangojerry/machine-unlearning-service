@@ -44,6 +44,10 @@ def create_splits(
     test_size: float = 0.20,
     seed: int = 42,
 ) -> DatasetSplits:
+    if not 0.0 < test_size < 1.0:
+        raise ValueError(
+            "test_size must be between 0 and 1"
+        )
     X_train, X_test, y_train, y_test = train_test_split(
         features,
         target,

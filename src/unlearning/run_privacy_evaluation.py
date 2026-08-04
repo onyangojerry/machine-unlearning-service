@@ -7,6 +7,7 @@ import joblib
 import matplotlib.pyplot as plt
 import mlflow
 import numpy as np
+import pytest
 
 from unlearning.data import (
     add_stable_record_ids,
@@ -18,7 +19,10 @@ from unlearning.partition import partition_training_data
 from unlearning.privacy_evaluation import (
     evaluate_model_privacy,
 )
+from unlearning.train_baseline import CONFIG
 
+
+pytestmark = pytest.mark.integration
 
 SEED = 42
 CALIBRATION_SIZE = 1000
@@ -234,6 +238,7 @@ def main() -> None:
         forget_X=single_partition.forget_X,
         forget_y=single_partition.forget_y,
         seed=SEED,
+        bootstrap_iterations=CONFIG.bootstrap_iterations,
     )
 
     selective_result = evaluate_model_privacy(
@@ -246,6 +251,8 @@ def main() -> None:
         forget_X=single_partition.forget_X,
         forget_y=single_partition.forget_y,
         seed=SEED,
+        bootstrap_iterations=CONFIG.bootstrap_iterations,
+
     )
 
     results = {
@@ -281,7 +288,6 @@ def main() -> None:
 
     plot_member_rates(results)
 
-    mlflow.set_tracking_uri("sqlite:///mlflow.db") # from "file:./mlruns" to "file:./mlruns"
     mlflow.set_experiment("adult-income-unlearning")
 
     with mlflow.start_run(

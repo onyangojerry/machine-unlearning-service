@@ -8,6 +8,7 @@ import shutil
 import joblib
 import mlflow
 import pandas as pd
+import pytest
 
 from unlearning.comparison import compare_model_behavior
 from unlearning.data import (
@@ -26,9 +27,14 @@ from unlearning.selective_retrain import (
 from unlearning.sisa_ensemble import (
     train_sharded_ensemble,
 )
+from unlearning.train_sisa import CONFIG
 
 
-SEED = 42
+pytestmark = pytest.mark.integration
+
+SEED = CONFIG.seed
+NUMBER_OF_SHARDS = CONFIG.number_of_shards
+NUMBER_OF_SLICES = CONFIG.number_of_slices
 SCENARIO = "single_record"
 
 ARTIFACT_DIRECTORY = Path("artifacts")
@@ -256,7 +262,6 @@ def main() -> None:
         encoding="utf-8",
     )
 
-    mlflow.set_tracking_uri("file:./mlruns")
     mlflow.set_experiment("adult-income-unlearning")
 
     with mlflow.start_run(
